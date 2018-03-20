@@ -7234,6 +7234,58 @@ void zend_compile_unary_pm(znode *result, zend_ast *ast) /* {{{ */
 }
 /* }}} */
 
+void zend_compile_go(znode *result, zend_ast *ast) /* {{{ */
+{
+	zend_ast *expr_ast = ast->child[0];
+	zend_ast *go_args_ast;
+
+	znode expr_node;
+	zend_compile_expr(&expr_node, expr_ast->child[0]);
+
+
+	if (ast->kind == ZEND_AST_CALL) {
+		// expected 
+	}
+
+	if (ast->kind == ZEND_AST_METHOD_CALL || ast->kind == ZEND_AST_STATIC_CALL) {
+		zend_error_noreturn(E_COMPILE_ERROR, "Can't use method return value in method of object");
+	}
+
+	if (expr_ast->kind != ZEND_AST_CALL) {
+		zend_error_noreturn(E_COMPILE_ERROR, "The go construction should be used only standart function");
+		return;
+	}
+
+	zend_string *function_name = zend_ast_get_str(expr_ast->child[0]);
+	zend_error(E_NOTICE, "Запуск рутины %s", ZSTR_VAL(function_name));
+
+	go_args_ast = expr_ast->child[1];
+
+	if (1) {
+		zval fn_name;
+		ZVAL_STRING(&fn_name, "__go");
+
+		zend_ast *name_ast, *args_ast, *call_ast;
+		name_ast = zend_ast_create_zval(&fn_name);
+		args_ast = zend_ast_create_list(1, ZEND_AST_ARG_LIST, expr_ast->child[0]);
+
+		int i;
+		zend_ast_list *list = zend_ast_get_list(go_args_ast);
+		for (i = 0; i < list->children; ++i) {
+			args_ast = zend_ast_list_add(args_ast, list->child[i]);
+		}
+
+		call_ast = zend_ast_create(ZEND_AST_CALL, name_ast, args_ast);
+		zend_compile_expr(result, call_ast);
+
+		zval_ptr_dtor(&fn_name);
+	}
+	// zval_ptr_dtor(&function_name);
+	zval_ptr_dtor(&expr_node.u.constant);
+}
+/* }}} */
+
+
 void zend_compile_short_circuiting(znode *result, zend_ast *ast) /* {{{ */
 {
 	zend_ast *left_ast = ast->child[0];
@@ -8375,6 +8427,9 @@ void zend_compile_expr(znode *result, zend_ast *ast) /* {{{ */
 			return;
 		case ZEND_AST_PRINT:
 			zend_compile_print(result, ast);
+			return;
+		case ZEND_AST_GO:
+			zend_compile_go(result, ast);
 			return;
 		case ZEND_AST_EXIT:
 			zend_compile_exit(result, ast);

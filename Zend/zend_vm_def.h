@@ -9019,3 +9019,47 @@ ZEND_VM_HELPER(zend_interrupt_helper, ANY, ANY)
 	}
 	ZEND_VM_CONTINUE();
 }
+
+ZEND_VM_HANDLER(199, ZEND_GO, CONST|TMPVAR|CV, ANY)
+{
+	USE_OPLINE
+	zval  *result;
+
+	SAVE_OPLINE();
+
+	result = EX_VAR(opline->result.var);
+	ZVAL_DOUBLE(result, 42);
+
+	ZEND_VM_NEXT_OPCODE_CHECK_EXCEPTION();
+}
+
+ZEND_VM_HANDLER(200, ZEND_GOPHP, CONST|TMPVAR|CV, ANY)
+{
+	/***** DIDNT USED ************/
+	/***** DIDNT USED ************/
+	/***** DIDNT USED ************/
+	/***** DIDNT USED ************/
+	USE_OPLINE
+	// zend_free_op free_op1, free_op2;
+	zend_free_op free_op1;
+	// zval *op1, *op2, *result;
+	zval  *result;
+
+	// op1 = GET_OP1_ZVAL_PTR_UNDEF(BP_VAR_R);
+	// op2 = GET_OP2_ZVAL_PTR_UNDEF(BP_VAR_R);
+
+	SAVE_OPLINE();
+	// op1 = GET_OP1_ZVAL_PTR(BP_VAR_R);
+	// op2 = GET_OP2_ZVAL_PTR(BP_VAR_R);
+	result = EX_VAR(opline->result.var);
+	ZVAL_DOUBLE(result, 42);
+
+	/* TODO */
+
+	//ZVAL_NULL(EX_VAR(opline->result.var));
+
+	// FREE_OP1();
+	// FREE_OP2();
+	ZEND_VM_NEXT_OPCODE_CHECK_EXCEPTION();
+}
+

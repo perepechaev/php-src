@@ -79,7 +79,7 @@ static YYSIZE_T zend_yytnamerr(char*, const char*);
 %right '~' T_INC T_DEC T_INT_CAST T_DOUBLE_CAST T_STRING_CAST T_ARRAY_CAST T_OBJECT_CAST T_BOOL_CAST T_UNSET_CAST '@'
 %right T_POW
 %right '['
-%nonassoc T_NEW T_CLONE
+%nonassoc T_NEW T_CLONE T_GO
 %left T_NOELSE
 %left T_ELSEIF
 %left T_ELSE
@@ -107,6 +107,7 @@ static YYSIZE_T zend_yytnamerr(char*, const char*);
 %token T_LOGICAL_AND  "and (T_LOGICAL_AND)"
 %token T_PRINT        "print (T_PRINT)"
 %token T_YIELD        "yield (T_YIELD)"
+%token T_GO           "go (T_GO)"
 %token T_YIELD_FROM   "yield from (T_YIELD_FROM)"
 %token T_PLUS_EQUAL   "+= (T_PLUS_EQUAL)"
 %token T_MINUS_EQUAL  "-= (T_MINUS_EQUAL)"
@@ -236,7 +237,7 @@ static YYSIZE_T zend_yytnamerr(char*, const char*);
 %type <ast> extends_from parameter optional_type argument expr_without_variable global_var
 %type <ast> static_var class_statement trait_adaptation trait_precedence trait_alias
 %type <ast> absolute_trait_method_reference trait_method_reference property echo_expr
-%type <ast> new_expr anonymous_class class_name class_name_reference simple_variable
+%type <ast> go_expr new_expr anonymous_class class_name class_name_reference simple_variable
 %type <ast> internal_functions_in_yacc
 %type <ast> exit_expr scalar backticks_expr lexical_var function_call member_name property_name
 %type <ast> variable_class_name dereferencable_scalar constant dereferencable
@@ -869,6 +870,11 @@ new_expr:
 			{ $$ = $2; }
 ;
 
+go_expr:
+		T_GO function_call 
+			{ $$ = zend_ast_create(ZEND_AST_GO, $2); }
+;
+
 expr_without_variable:
 		T_LIST '(' array_pair_list ')' '=' expr
 			{ $3->attr = ZEND_ARRAY_SYNTAX_LIST; $$ = zend_ast_create(ZEND_AST_ASSIGN, $3, $6); }
@@ -929,6 +935,8 @@ expr_without_variable:
 	|	expr '%' expr 	{ $$ = zend_ast_create_binary_op(ZEND_MOD, $1, $3); }
 	| 	expr T_SL expr	{ $$ = zend_ast_create_binary_op(ZEND_SL, $1, $3); }
 	|	expr T_SR expr	{ $$ = zend_ast_create_binary_op(ZEND_SR, $1, $3); }
+	|	go_expr 		{ $$ = $1; }
+	/*|	T_GO expr       { $$ = zend_ast_create(ZEND_AST_PRINT, $2); }*/
 	|	'+' expr %prec T_INC { $$ = zend_ast_create(ZEND_AST_UNARY_PLUS, $2); }
 	|	'-' expr %prec T_INC { $$ = zend_ast_create(ZEND_AST_UNARY_MINUS, $2); }
 	|	'!' expr { $$ = zend_ast_create_ex(ZEND_AST_UNARY_OP, ZEND_BOOL_NOT, $2); }

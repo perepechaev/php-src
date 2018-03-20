@@ -1138,6 +1138,14 @@ NEWLINE ("\r"|"\n"|"\r\n")
 	RETURN_TOKEN(T_EXIT);
 }
 
+<ST_IN_SCRIPTING>"func" {
+	RETURN_TOKEN(T_FUNCTION);
+}
+
+<ST_IN_SCRIPTING>"функция" {
+	RETURN_TOKEN(T_FUNCTION);
+}
+
 <ST_IN_SCRIPTING>"function" {
 	RETURN_TOKEN(T_FUNCTION);
 }
@@ -1266,6 +1274,14 @@ NEWLINE ("\r"|"\n"|"\r\n")
 
 <ST_IN_SCRIPTING>"echo" {
 	RETURN_TOKEN(T_ECHO);
+}
+
+<ST_IN_SCRIPTING>"показать" {
+	RETURN_TOKEN(T_ECHO);
+}
+
+<ST_IN_SCRIPTING>"go" {
+	RETURN_TOKEN(T_GO);
 }
 
 <ST_IN_SCRIPTING>"print" {
